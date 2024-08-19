@@ -8,9 +8,39 @@ const Op = db.Sequelize.Op;
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
+exports.signup = async (req, res) => {
+  // Save User to Database
+  try {
+    const user = await User.create({
+      username: req.body.username,
+      email: req.body.email,
+      password: bcrypt.hashSync(req.body.password, 8),
+    });
+
+    if (req.body.roles) {
+      const roles = await Role.findAll({
+        where: {
+          name: {
+            [Op.or]: req.body.roles,
+          },
+        },
+      });
+
+      const result = await user.setRoles(roles);
+      if (result) res.send({ message: "User registered successfully!" });
+    } else {
+      // user has role = 1
+      const result = await user.setRoles([1]);
+      if (result) res.send({ message: "User registered successfully!" });
+    }
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
 exports.signin = async (req, res) => {
   try {
-    // Check if email is provided in the request
+    // Kiểm tra xem có email trong yêu cầu không
     if (!req.body.email) {
       return res.status(400).send({ message: "Email is required" });
     }
@@ -41,6 +71,7 @@ exports.signin = async (req, res) => {
       config.secret,
       {
         algorithm: 'HS256',
+        allowInsecureKeySizes: true,
         expiresIn: 86400, // 24 hours
       }
     );
@@ -51,15 +82,26 @@ exports.signin = async (req, res) => {
       authorities.push("ROLE_" + roles[i].name.toUpperCase());
     }
 
-    // Return the token along with other information
+    req.session.token = token;
+
     return res.status(200).send({
       id: user.id,
       username: user.username,
       email: user.email,
       roles: authorities,
-      accessToken: token,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message });
+  }
+};
+
+exports.signout = async (req, res) => {
+  try {
+    req.session = null;
+    return res.status(200).send({
+      message: "You've been signed out!"
+    });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
