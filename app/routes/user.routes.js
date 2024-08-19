@@ -29,4 +29,10 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
+  // Route mới để lấy tất cả người dùng đã đăng ký
+  app.get(
+    "/api/users",
+    [authJwt.verifyToken, authJwt.isAdmin], // Chỉ cho phép admin truy cập
+    controller.getAllUsers
+  );
 };
