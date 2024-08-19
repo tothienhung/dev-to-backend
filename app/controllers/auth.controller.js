@@ -10,7 +10,7 @@ const bcrypt = require("bcryptjs");
 
 exports.signin = async (req, res) => {
   try {
-    // Kiểm tra xem có email trong yêu cầu không
+    // Check if email is provided in the request
     if (!req.body.email) {
       return res.status(400).send({ message: "Email is required" });
     }
@@ -51,13 +51,13 @@ exports.signin = async (req, res) => {
       authorities.push("ROLE_" + roles[i].name.toUpperCase());
     }
 
-    // Trả về token cùng với các thông tin khác
+    // Return the token along with other information
     return res.status(200).send({
       id: user.id,
       username: user.username,
       email: user.email,
       roles: authorities,
-      accessToken: token,  // Thêm dòng này
+      accessToken: token,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message });
