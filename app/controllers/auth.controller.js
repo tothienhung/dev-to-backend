@@ -37,6 +37,7 @@ exports.signup = async (req, res) => {
     res.status(500).send({ message: error.message });
   }
 };
+
 exports.signin = async (req, res) => {
   try {
     // Kiểm tra xem có email trong yêu cầu không
@@ -88,9 +89,19 @@ exports.signin = async (req, res) => {
       username: user.username,
       email: user.email,
       roles: authorities,
-      accessToken: token,
     });
   } catch (error) {
     return res.status(500).send({ message: error.message });
+  }
+};
+
+exports.signout = async (req, res) => {
+  try {
+    req.session = null;
+    return res.status(200).send({
+      message: "You've been signed out!"
+    });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
