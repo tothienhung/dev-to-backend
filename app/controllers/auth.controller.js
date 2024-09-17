@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 exports.signup = async (req, res) => {
-  // Save User to Database
+   
   try {
     const user = await User.create({
       username: req.body.username,
@@ -29,8 +29,8 @@ exports.signup = async (req, res) => {
       const result = await user.setRoles(roles);
       if (result) res.send({ message: "User registered successfully!" });
     } else {
-      // user has role = 1
-      const result = await user.setRoles([1]);
+       
+      const result = await user.setRoles([3]);
       if (result) res.send({ message: "User registered successfully!" });
     }
   } catch (error) {
@@ -40,7 +40,6 @@ exports.signup = async (req, res) => {
 
 exports.signin = async (req, res) => {
   try {
-    // Kiểm tra xem có email trong yêu cầu không
     if (!req.body.email) {
       return res.status(400).send({ message: "Email is required" });
     }
@@ -71,7 +70,6 @@ exports.signin = async (req, res) => {
       config.secret,
       {
         algorithm: 'HS256',
-        allowInsecureKeySizes: true,
         expiresIn: 86400, // 24 hours
       }
     );
@@ -82,18 +80,20 @@ exports.signin = async (req, res) => {
       authorities.push("ROLE_" + roles[i].name.toUpperCase());
     }
 
-    req.session.token = token;
-
+    
     return res.status(200).send({
       id: user.id,
       username: user.username,
       email: user.email,
       roles: authorities,
+      accessToken: token,  
     });
   } catch (error) {
+    console.error('Signin Error:', error);  
     return res.status(500).send({ message: error.message });
   }
 };
+
 
 exports.signout = async (req, res) => {
   try {

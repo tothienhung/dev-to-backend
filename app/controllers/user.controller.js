@@ -1,3 +1,6 @@
+const db = require("../models");
+const User = db.user; // Kiểm tra rằng db.user tồn tại và đúng với định nghĩa mô hình
+
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
 };
@@ -17,11 +20,15 @@ exports.moderatorBoard = (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ["id", "first_name", "last_name", "email", "created_at"],
-      where: { active: true }, // Lọc những người dùng đang hoạt động
+      attributes: ["id", "username", "email"],
+      where: { active: true },
     });
+
+    console.log("Fetched users:", users);  // Log danh sách người dùng
+
     res.status(200).json(users);
   } catch (error) {
+    console.error("Error fetching users:", error);  // Log chi tiết lỗi
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
