@@ -16,6 +16,12 @@ module.exports = (sequelize, Sequelize) => {
     active: {
       type: Sequelize.BOOLEAN,
       defaultValue: true, // Người dùng sẽ được kích hoạt theo mặc định
+    },
+    resetPasswordToken: {
+      type: Sequelize.STRING,
+    },
+    resetPasswordExpires: {
+      type: Sequelize.DATE,
     }
   }, {
     timestamps: true, // Tự động tạo các trường createdAt và updatedAt
