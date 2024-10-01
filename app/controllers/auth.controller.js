@@ -137,13 +137,14 @@ exports.forgotPassword = async (req, res) => {
       },
     });
 
+    const resetPasswordUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     const mailOptions = {
       to: user.email,
       from: process.env.EMAIL_USER,
       subject: 'Yêu cầu đặt lại mật khẩu',
       text: `Bạn nhận được email này vì bạn (hoặc ai đó) đã yêu cầu đặt lại mật khẩu tài khoản của bạn.\n\n
       Vui lòng nhấn vào liên kết sau hoặc sao chép và dán vào trình duyệt của bạn để hoàn tất quy trình:\n\n
-      http://${req.headers.host}/api/auth/reset-password/${resetToken}\n\n
+      ${resetPasswordUrl}\n\n
       Nếu bạn không yêu cầu điều này, vui lòng bỏ qua email này và mật khẩu của bạn sẽ không bị thay đổi.\n`,
     };
 
