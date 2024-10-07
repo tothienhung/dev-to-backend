@@ -1,26 +1,16 @@
 const { verifySignUp } = require("../middleware");
 const controller = require("../controllers/auth.controller");
 const { authJwt } = require("../middleware");
-const cors = require('cors'); // Import cors
 
 module.exports = function (app) {
-  // Cấu hình CORS
-  app.use(cors({
-    origin: 'https://admin-frontend-ochre.vercel.app', // URL frontend của bạn
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization'],
-  }));
-
-  // Đặt headers chung cho tất cả các yêu cầu
   app.use(function (req, res, next) {
     res.header(
       "Access-Control-Allow-Headers",
-      "Origin, Content-Type, Accept, Authorization"
+      "Origin, Content-Type, Accept"
     );
     next();
   });
 
-  // Các route xác thực
   app.post(
     "/api/auth/signup",
     [
@@ -39,4 +29,5 @@ module.exports = function (app) {
   app.post("/api/auth/reset-password/:token", controller.resetPassword);
 
   app.post('/api/auth/change-password', [authJwt.verifyToken], controller.changePassword);
+
 };
