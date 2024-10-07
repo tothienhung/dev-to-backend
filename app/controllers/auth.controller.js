@@ -20,21 +20,8 @@ exports.signup = async (req, res) => {
       password: bcrypt.hashSync(req.body.password, 8),
     });
 
-    if (req.body.roles) {
-      const roles = await Role.findAll({
-        where: {
-          name: {
-            [Op.or]: req.body.roles,
-          },
-        },
-      });
-
-      const result = await user.setRoles(roles);
-      if (result) res.send({ message: "User registered successfully!" });
-    } else {
-
-      const result = await user.setRoles([3]);
-      if (result) res.send({ message: "User registered successfully!" });
+    if (user) {
+      res.send({ message: "User registered successfully!" });
     }
   } catch (error) {
     res.status(500).send({ message: error.message });
@@ -118,7 +105,7 @@ exports.forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Email không tồn tại!" });
     }
-
+    console.log("error forgot")
     // Tạo token đặt lại mật khẩu
     const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     // Log giá trị JWT_SECRET

@@ -20,19 +20,19 @@ module.exports = function (app) {
 
   app.get(
     "/api/test/mod",
-    [authJwt.verifyToken, authJwt.isModerator],
+    [authJwt.verifyToken],
     controller.moderatorBoard
   );
 
   app.get(
     "/api/test/admin",
-    [authJwt.verifyToken, authJwt.isAdmin],
+    [authJwt.verifyToken],
     controller.adminBoard
   );
   // Route mới để lấy tất cả người dùng đã đăng ký
   app.get(
     "/api/users",
-    [authJwt.verifyToken, authJwt.isAdmin], // Chỉ cho phép admin truy cập
+    [authJwt.verifyToken],
     controller.getAllUsers
   );
 };
