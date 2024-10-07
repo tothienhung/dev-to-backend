@@ -2,9 +2,34 @@
   "version": 2,
   "name": "nodejs-mysql",
   "builds": [
-    { "src": "*.js", "use": "@vercel/node" }
+    {
+      "src": "*.js",
+      "use": "@vercel/node"
+    }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/server.js" }
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://admin-frontend-ochre.vercel.app"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+        }
+      ]
+    }
   ]
 }
