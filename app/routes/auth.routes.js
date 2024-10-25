@@ -1,7 +1,7 @@
 const { verifySignUp } = require("../middleware");
 const controller = require("../controllers/auth.controller");
 const { authJwt } = require("../middleware");
-
+const passport = require('passport');
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -32,4 +32,7 @@ module.exports = function (app) {
   app.post('/api/auth/change-password', [authJwt.verifyToken], controller.changePassword);
 
   app.post('/api/auth/google', controller.googleLogin);
+  app.post('/api/auth/facebook', controller.facebookLogin);
+
+  
 };

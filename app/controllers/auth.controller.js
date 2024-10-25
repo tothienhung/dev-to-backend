@@ -4,13 +4,17 @@ const User = db.user;
 const Role = db.role;
 const { OAuth2Client } = require('google-auth-library');
 const Op = db.Sequelize.Op;
-
+const axios = require('axios');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 require('dotenv').config();
 
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+ 
+
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
 exports.signup = async (req, res) => {
 
   try {
@@ -298,5 +302,60 @@ exports.googleLogin = async (req, res) => {
   } catch (error) {
     console.error('Lỗi xác thực Google:', error);
     return res.status(401).json({ message: 'Xác thực Google thất bại' });
+  }
+};
+
+exports.facebookLogin = async (req, res) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return res.status(400).json({ message: 'Thiếu accessToken từ Facebook' });
+  }
+
+  try {
+    // Gọi API của Facebook để xác thực token và lấy thông tin người dùng
+    const facebookResponse = await axios.get(
+      `https://graph.facebook.com/me?access_token=${accessToken}&fields=id,name,email`
+    );
+
+    const { email, name } = facebookResponse.data;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Tài khoản Facebook không cung cấp email.' });
+    }
+
+    // Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu hay chưa
+    let user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      // Nếu người dùng chưa tồn tại, tạo mới một tài khoản
+      user = await User.create({
+        email,
+        username: name || email.split('@')[0], // Dùng tên hoặc phần đầu email làm username
+        password: await generateRandomPassword(), // Tạo mật khẩu ngẫu nhiên
+        auth_provider: 'facebook', // Ghi nhận người dùng đến từ Facebook
+      });
+    }
+
+    // Tạo JWT cho người dùng
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET || 'mySuperSecretJWTKey123!',
+      { expiresIn: '1h' }
+    );
+
+    // Trả về thông tin và token cho frontend
+    res.status(200).json({
+      message: 'Đăng nhập Facebook thành công',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username, // Thêm username vào thông tin người dùng
+      },
+      token,
+    });
+  } catch (error) {
+    console.error('Lỗi đăng nhập Facebook:', error);
+    res.status(500).json({ message: 'Đăng nhập Facebook thất bại', error: error.message });
   }
 };
